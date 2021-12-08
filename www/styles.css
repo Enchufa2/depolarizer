@@ -1,0 +1,52 @@
+.container-fluid {
+  max-width: calc(27vw + 100vh);
+}
+
+.inline {
+  display: inline-block;
+  margin-bottom: 25px;
+}
+
+img {
+  max-width: 100%;
+}
+
+.cropper-view-box,
+.cropper-face {
+  border-radius: 50%;
+}
+
+.cropper-view-box {
+  outline: 3px solid #39f;
+}
+
+.cropper-dashed,
+.cropper-center {
+  mix-blend-mode: difference;
+  opacity: 1;
+}
+
+.cropper-line,
+.cropper-point {
+  opacity: 1;
+}
+
+.cropper-line.line-e,
+.cropper-line.line-w{
+  width: 3px;
+}
+
+.cropper-line.line-n,
+.cropper-line.line-s{
+  height: 3px;
+}
+
+.cropper-dashed.dashed-h {
+  border-bottom-width: 2px;
+  border-top-width: 2px;
+}
+
+.cropper-dashed.dashed-v {
+  border-left-width: 2px;
+  border-right-width: 2px;
+}
