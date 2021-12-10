@@ -6,5 +6,4 @@ Try the Shiny app at https://enchufa2.shinyapps.io/depolarizer/.
 
 ## Example
 
-<img src="circles.jpg" width=49%>
-<img src="circles_processed.jpg" width=49%>
+<img src="circles.jpg" width=49%><img src="circles_processed.jpg" width=49%>
