@@ -1,6 +1,8 @@
 library(shiny)
 options(shiny.maxRequestSize = 30*1024^2)
-source("depolarizer.R")
+source("utils.R")
+
+dp <- load_dp()
 
 example <- file.path(tempdir(), "circles.jpg")
 file.copy("circles.jpg", example)
@@ -11,21 +13,23 @@ zoom <- shinyWidgets::actionGroupButtons(
   paste0("zoom-", c("in", "out")),
   lapply(paste0("search-", c("plus", "minus")), icon),
   status="primary")
-zoom[[3]][[1]][[1]][[2]]$onclick <- "cropper.zoom(0.1);"
-zoom[[3]][[1]][[2]][[2]]$onclick <- "cropper.zoom(-0.1);"
+zoom$children[[1]][[1]]$attribs$onclick <- "cropper.zoom(0.1);"
+zoom$children[[1]][[2]]$attribs$onclick <- "cropper.zoom(-0.1);"
 
 move <- shinyWidgets::actionGroupButtons(
   paste0("move-", c("left", "right", "up", "down")),
   lapply(paste0("arrow-", c("left", "right", "up", "down")), icon),
   status="primary")
-move[[3]][[1]][[1]][[2]]$onclick <- "cropper.move(-10, 0);"
-move[[3]][[1]][[2]][[2]]$onclick <- "cropper.move(10, 0);"
-move[[3]][[1]][[3]][[2]]$onclick <- "cropper.move(0, -10);"
-move[[3]][[1]][[4]][[2]]$onclick <- "cropper.move(0, 10);"
+move$children[[1]][[1]]$attribs$onclick <- "cropper.move(-0.2, 0);"
+move$children[[1]][[2]]$attribs$onclick <- "cropper.move(0.2, 0);"
+move$children[[1]][[3]]$attribs$onclick <- "cropper.move(0, -0.2);"
+move$children[[1]][[4]]$attribs$onclick <- "cropper.move(0, 0.2);"
 
-reset <- shinyWidgets::actionGroupButtons(
-  "reset", list(icon("sync")), status="primary")
-reset[[3]][[1]][[1]][[2]]$onclick <- "cropper.reset();"
+cbox <- shinyWidgets::actionGroupButtons(
+  c("full", "reset"), list("100%", icon("sync")), status="primary")
+cbox$children[[1]][[1]]$attribs$onclick <-
+  "cropper.setCropBoxData({left:0, top:0, width:Infinity});"
+cbox$children[[1]][[2]]$attribs$onclick <- "cropper.reset();"
 
 ui <- fluidPage(
   shinyjs::useShinyjs(),
@@ -41,7 +45,7 @@ ui <- fluidPage(
         "upload", label="Input image:", width="100%",
         accept=c("image/png", "image/jpeg", "image/jpg")),
       shinycssloaders::withSpinner(imageOutput("container_in", height=NULL)),
-      zoom, move, reset
+      div(zoom, move, cbox, style="padding: 20px 0;")
     ),
     column(
       6, br(),
@@ -61,8 +65,7 @@ server <- function(input, output, session) {
 
   output$container_in <- renderImage(deleteFile=FALSE, {
     file_in <- get_file_in()
-    resolution <- imager::width(imager::load.image(file_in))
-    updateNumericInput(session, "resolution", value=resolution)
+    updateNumericInput(session, "resolution", value=dp$width(file_in))
 
     shinyjs::runjs("
       if (typeof cropper != 'undefined')
@@ -97,12 +100,7 @@ server <- function(input, output, session) {
     file_in <- isolate(get_file_in())
     file_ext <- strsplit(basename(file_in), "\\.")[[1]][2]
     file_out <- file.path(dirname(file_in), paste0("out.", file_ext))
-
-    src <- imager::load.image(file_in)
-    src <- src[
-      data$x + seq_len(data$width),
-      data$y + seq_len(data$height),,, drop=FALSE]
-    imager::save.image(depolarizer(src, resolution), file_out)
+    dp$depolarizer(file_in, file_out, data, resolution)
 
     list(src=file_out)
   })
