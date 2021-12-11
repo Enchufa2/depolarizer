@@ -3,8 +3,9 @@ options(shiny.maxRequestSize = 30*1024^2)
 source("utils.R")
 
 dp <- load_dp()
-example <- file.path(tempdir(), "circles.jpg")
-file.copy("circles.jpg", example)
+example_name <- "circles.jpg"
+example_path <- file.path(tempdir(), example_name)
+file.copy(example_name, example_path)
 cropper.url <- "https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/"
 
 ui <- navbarPage(
@@ -20,7 +21,28 @@ ui <- navbarPage(
       tags$link(href=paste0(cropper.url, "cropper.min.css"), rel="stylesheet"),
       tags$script(src=paste0(cropper.url, "cropper.min.js")),
       tags$link(href="styles.css", rel="stylesheet"),
+      tags$script(HTML("
+        $(document).on('shiny:inputchanged', function(e) {
+          if (e.name == 'upload' || e.name == 'run') {
+            $('#download').hide()
+          }
+        });
+        $(document).on('shiny:value', function(e) {
+          if (e.name == 'container_out') {
+            var im_name = $('#filename').val().split('.')[0];
+            var im_type = $('#image').attr('src').split(';')[0].split(':')[1];
+            var im_ext = im_type.split('/')[1];
+            var im_in = cropper.getCroppedCanvas().toDataURL(im_type);
+            $('#download-out').attr('href', e.value.src);
+            $('#download-in').attr('href', im_in);
+            $('#download-out').attr('download', im_name + '_result.' + im_ext);
+            $('#download-in').attr('download', im_name + '_cropped.' + im_ext);
+            $('#download').show()
+          }
+        });
+      "))
     ),
+
     fluidRow(
       column(
         6,
@@ -28,10 +50,11 @@ ui <- navbarPage(
           class="controls",
           fileInput(
             "upload", label="Input image:", width="100%",
-            accept=c("image/png", "image/jpeg", "image/jpg"))
+            accept=c("image/png", "image/jpeg", "image/jpg")),
+          shinyjs::hidden(textInput("filename", NULL, NULL))
         ),
         shinycssloaders::withSpinner(imageOutput("container_in", height=NULL)),
-        cropper_buttons()
+        control_buttons()
       ),
       column(
         6,
@@ -46,7 +69,8 @@ ui <- navbarPage(
           actionButton(
             "run", "Convert", icon("play"), class="btn-primary", width="105px")
         ),
-        shinycssloaders::withSpinner(imageOutput("container_out", height=NULL))
+        shinycssloaders::withSpinner(imageOutput("container_out", height=NULL)),
+        download_buttons()
       )
     )
   ),
@@ -60,14 +84,15 @@ ui <- navbarPage(
 )
 
 server <- function(input, output, session) {
-  file_example <- reactiveVal(example)
+  file_example <- reactiveVal(list(name=example_name, datapath=example_path))
 
-  get_file_in <- function() if (isTruthy(input$upload$datapath))
-    input$upload$datapath else req(file_example())
+  get_file_in <- function() if (isTruthy(input$upload))
+    input$upload else req(file_example())
 
   output$container_in <- renderImage(deleteFile=FALSE, {
-    file_in <- get_file_in()
+    file_in <- get_file_in()$datapath
     updateNumericInput(session, "resolution", value=dp$width(file_in))
+    updateTextInput(session, "filename", value=get_file_in()$name)
 
     shinyjs::runjs("
       if (typeof cropper != 'undefined')
@@ -89,8 +114,10 @@ server <- function(input, output, session) {
   })
 
   observeEvent(input$run, {
-    shinyjs::runjs("Shiny.setInputValue('data', null);")
-    shinyjs::runjs("Shiny.setInputValue('data', cropper.getData());")
+    shinyjs::runjs("
+      Shiny.setInputValue('data', null);
+      Shiny.setInputValue('data', cropper.getData());
+    ")
   })
 
   output$container_out <- renderImage(deleteFile=TRUE, {
@@ -100,7 +127,7 @@ server <- function(input, output, session) {
     resok <- findInterval(resolution, c(100, 5001)) == 1
     validate(need(resok, "Error: resolution must be between 100 and 5000"))
 
-    file_in <- isolate(get_file_in())
+    file_in <- isolate(get_file_in()$datapath)
     file_ext <- strsplit(basename(file_in), "\\.")[[1]][2]
     file_out <- file.path(dirname(file_in), paste0("out.", file_ext))
     dp$depolarizer(file_in, file_out, data, axis, resolution)

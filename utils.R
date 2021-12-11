@@ -11,7 +11,7 @@ load_dp <- function() {
   reticulate::import("depolarizer")
 }
 
-cropper_buttons <- function() {
+control_buttons <- function() {
   zoom <- shinyWidgets::actionGroupButtons(
     paste0("zoom-", c("in", "out")),
     lapply(paste0("search-", c("plus", "minus")), icon),
@@ -35,4 +35,17 @@ cropper_buttons <- function() {
   cbox$children[[1]][[2]]$attribs$onclick <- "cropper.reset();"
 
   div(zoom, move, cbox, style="padding: 20px 0;")
+}
+
+download_buttons <- function() {
+  download_in <- a(
+    id="download-in", class="btn btn-primary shiny-download-link",
+    icon("download"), "Download crop", href=NULL, download=NULL)
+  download_out <- a(
+    id="download-out", class="btn btn-primary shiny-download-link",
+    icon("download"), "Download result", href=NULL, download=NULL)
+
+  style <- "padding: 20px 0; display: none;"
+
+  div(id="download", download_in, download_out, style=style)
 }
