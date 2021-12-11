@@ -1,10 +1,13 @@
 .container-fluid {
-  max-width: calc(25vw + 100vh);
+  max-width: calc(175vh - 320px);
 }
 
-.inline {
-  display: inline-block;
-  margin-bottom: 25px;
+.navbar-nav {
+  justify-content: end;
+}
+
+.controls {
+  height: 100px;
 }
 
 img {

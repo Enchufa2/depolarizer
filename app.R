@@ -3,58 +3,55 @@ options(shiny.maxRequestSize = 30*1024^2)
 source("utils.R")
 
 dp <- load_dp()
-
 example <- file.path(tempdir(), "circles.jpg")
 file.copy("circles.jpg", example)
-
 cropper.url <- "https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/"
 
-zoom <- shinyWidgets::actionGroupButtons(
-  paste0("zoom-", c("in", "out")),
-  lapply(paste0("search-", c("plus", "minus")), icon),
-  status="primary")
-zoom$children[[1]][[1]]$attribs$onclick <- "cropper.zoom(0.1);"
-zoom$children[[1]][[2]]$attribs$onclick <- "cropper.zoom(-0.1);"
+ui <- navbarPage(
+  "Depolarizer",
+  theme = bslib::bs_theme(5),
+  inverse = TRUE,
+  collapsible = TRUE,
 
-move <- shinyWidgets::actionGroupButtons(
-  paste0("move-", c("left", "right", "up", "down")),
-  lapply(paste0("arrow-", c("left", "right", "up", "down")), icon),
-  status="primary")
-move$children[[1]][[1]]$attribs$onclick <- "cropper.move(-0.2, 0);"
-move$children[[1]][[2]]$attribs$onclick <- "cropper.move(0.2, 0);"
-move$children[[1]][[3]]$attribs$onclick <- "cropper.move(0, -0.2);"
-move$children[[1]][[4]]$attribs$onclick <- "cropper.move(0, 0.2);"
-
-cbox <- shinyWidgets::actionGroupButtons(
-  c("full", "reset"), list("100%", icon("sync")), status="primary")
-cbox$children[[1]][[1]]$attribs$onclick <-
-  "cropper.setCropBoxData({left:0, top:0, width:Infinity});"
-cbox$children[[1]][[2]]$attribs$onclick <- "cropper.reset();"
-
-ui <- fluidPage(
-  shinyjs::useShinyjs(),
-  tags$head(
-    tags$link(href=paste0(cropper.url, "cropper.min.css"), rel="stylesheet"),
-    tags$script(src=paste0(cropper.url, "cropper.min.js")),
-    tags$link(href="styles.css", rel="stylesheet"),
-  ),
-  fluidRow(
-    column(
-      6, br(),
-      fileInput(
-        "upload", label="Input image:", width="100%",
-        accept=c("image/png", "image/jpeg", "image/jpg")),
-      shinycssloaders::withSpinner(imageOutput("container_in", height=NULL)),
-      div(zoom, move, cbox, style="padding: 20px 0;")
+  tabPanel(
+    "",
+    shinyjs::useShinyjs(),
+    tags$head(
+      tags$link(href=paste0(cropper.url, "cropper.min.css"), rel="stylesheet"),
+      tags$script(src=paste0(cropper.url, "cropper.min.js")),
+      tags$link(href="styles.css", rel="stylesheet"),
     ),
-    column(
-      6, br(),
-      div(class="inline", numericInput(
-        "resolution", "Output resolution:", NULL, width="150px")),
-      actionButton("convert", "Convert", icon("play"), class="btn-primary"),
-      shinycssloaders::withSpinner(imageOutput("container_out", height=NULL))
+    fluidRow(
+      column(
+        6,
+        div(
+          class="controls",
+          fileInput(
+            "upload", label="Input image:", width="100%",
+            accept=c("image/png", "image/jpeg", "image/jpg"))
+        ),
+        shinycssloaders::withSpinner(imageOutput("container_in", height=NULL)),
+        cropper_buttons()
+      ),
+      column(
+        6,
+        div(
+          class="controls",
+          shiny::tagAppendAttributes(class="d-inline-block", numericInput(
+            "resolution", "Output resolution:", NULL, width="150px")),
+          actionButton("convert", "Convert", icon("play"), class="btn-primary")
+        ),
+        shinycssloaders::withSpinner(imageOutput("container_out", height=NULL))
+      )
     )
-  )
+  ),
+
+  bslib::nav_item(a(
+    icon("instagram"), "Polar Coordinates",
+    href="https://instagram.com/polar_coordinates", target="_blank")),
+  bslib::nav_item(a(
+    icon("github"), "Source Code",
+    href="https://github.com/Enchufa2/depolarizer", target="_blank"))
 )
 
 server <- function(input, output, session) {
