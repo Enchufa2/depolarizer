@@ -19,7 +19,7 @@ width <- function(file_i) {
   else imager::width(img_i)
 }
 
-depolarizer <- function(file_i, file_o, crop, res_o=1000, out.color=c(0, 0, 0)) {
+depolarizer <- function(file_i, file_o, crop, axis=0, res_o=1000, out.color=c(0, 0, 0)) {
   or_i <- orientation(file_i)
   img_i <- imager::load.image(file_i)
   img_i <- imager::imrotate(img_i, or_i$rotate)
@@ -35,7 +35,7 @@ depolarizer <- function(file_i, file_o, crop, res_o=1000, out.color=c(0, 0, 0)) 
 
   pix_o <- expand.grid(x=seq_len(res_o), y=rev(seq_len(res_o)))
   r <- res_i * exp(2*pi*(pix_o$y / res_o - 1))
-  angle <- 2*pi * pix_o$x / res_o
+  angle <- 2*pi * pix_o$x / res_o - axis * pi / 180
   pix_i <- r * data.frame(x=cos(angle), y=sin(angle)) + dim_i/2
   cha_o <- imager::interp(img_i, pix_i)
 

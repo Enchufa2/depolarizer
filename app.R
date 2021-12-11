@@ -38,8 +38,13 @@ ui <- navbarPage(
         div(
           class="controls",
           shiny::tagAppendAttributes(class="d-inline-block", numericInput(
-            "resolution", "Output resolution:", NULL, width="150px")),
-          actionButton("convert", "Convert", icon("play"), class="btn-primary")
+            "axis", "Cut axis (º):", -90, -180, 180, 1,
+            width="calc(0.4 * (100% - 115px))")),
+          shiny::tagAppendAttributes(class="d-inline-block", numericInput(
+            "resolution", "Output resolution (px):", NULL,
+            width="calc(0.6 * (100% - 115px))")),
+          actionButton(
+            "run", "Convert", icon("play"), class="btn-primary", width="105px")
         ),
         shinycssloaders::withSpinner(imageOutput("container_out", height=NULL))
       )
@@ -83,13 +88,14 @@ server <- function(input, output, session) {
     list(id="image", src=file_in)
   })
 
-  observeEvent(input$convert, {
+  observeEvent(input$run, {
     shinyjs::runjs("Shiny.setInputValue('data', null);")
     shinyjs::runjs("Shiny.setInputValue('data', cropper.getData());")
   })
 
   output$container_out <- renderImage(deleteFile=TRUE, {
     data <- req(input$data)
+    axis <- isolate(req(input$axis))
     resolution <- isolate(req(input$resolution))
     resok <- findInterval(resolution, c(100, 5001)) == 1
     validate(need(resok, "Error: resolution must be between 100 and 5000"))
@@ -97,7 +103,7 @@ server <- function(input, output, session) {
     file_in <- isolate(get_file_in())
     file_ext <- strsplit(basename(file_in), "\\.")[[1]][2]
     file_out <- file.path(dirname(file_in), paste0("out.", file_ext))
-    dp$depolarizer(file_in, file_out, data, resolution)
+    dp$depolarizer(file_in, file_out, data, axis, resolution)
 
     list(src=file_out)
   })

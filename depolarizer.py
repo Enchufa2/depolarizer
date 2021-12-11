@@ -4,7 +4,7 @@ import numpy as np
 def width(file_i):
     return cv.imread(file_i).shape[1]
 
-def depolarizer(file_i, file_o=None, crop=None, res_o=1000):
+def depolarizer(file_i, file_o=None, crop=None, axis=0, res_o=1000):
     img_i = cv.imread(file_i, cv.IMREAD_COLOR)
 
     if crop is not None:
@@ -19,7 +19,7 @@ def depolarizer(file_i, file_o=None, crop=None, res_o=1000):
     seq = np.arange(res_o, dtype=np.float32)
     pix_o = np.meshgrid(seq, np.flip(seq))
     r = res_i * np.exp(2*np.pi * (pix_o[1] / res_o - 1))
-    angle = 2*np.pi * pix_o[0] / res_o
+    angle = 2*np.pi * pix_o[0] / res_o - axis * np.pi / 180
     map_x = r * np.cos(angle) + dim_i/2
     map_y = r * np.sin(angle) + dim_i/2
     img_o = cv.remap(img_i, map_x, map_y, cv.INTER_LINEAR)
