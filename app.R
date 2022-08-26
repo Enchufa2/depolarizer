@@ -40,6 +40,21 @@ ui <- navbarPage(
             $('#download').show()
           }
         });
+        function zoom(t) {
+          var cv = cropper.getCanvasData();
+          var z = cv.width * (t=t<0?1/(1-t):1+t) / cv.naturalWidth;
+          var cb = cropper.getCropBoxData();
+          var c = {x: cb.left + cb.width / 2, y: cb.top + cb.height / 2};
+          return cropper.zoomTo(z, c);
+        }
+        function center() {
+          var ct = cropper.getContainerData();
+          var cb = cropper.getCropBoxData();
+          var c = {x: cb.left + cb.width / 2, y: cb.top + cb.height / 2};
+          var m = {x: ct.width / 2 - c.x, y: ct.height / 2 - c.y};
+          cropper.setCropBoxData({left: cb.left + m.x, top: cb.top + m.y});
+          return cropper.move(m.x, m.y);
+        };
       "))
     ),
 
