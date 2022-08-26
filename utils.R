@@ -26,10 +26,10 @@ control_buttons <- function() {
     paste0("move-", c("left", "right", "up", "down")),
     lapply(paste0("arrow-", c("left", "right", "up", "down")), icon),
     status="primary")
-  move$children[[1]][[1]]$attribs$onclick <- "cropper.move(-0.2, 0);"
-  move$children[[1]][[2]]$attribs$onclick <- "cropper.move(0.2, 0);"
-  move$children[[1]][[3]]$attribs$onclick <- "cropper.move(0, -0.2);"
-  move$children[[1]][[4]]$attribs$onclick <- "cropper.move(0, 0.2);"
+  move$children[[1]][[1]]$attribs$onclick <- "cropper.move(0.2, 0);"
+  move$children[[1]][[2]]$attribs$onclick <- "cropper.move(-0.2, 0);"
+  move$children[[1]][[3]]$attribs$onclick <- "cropper.move(0, 0.2);"
+  move$children[[1]][[4]]$attribs$onclick <- "cropper.move(0, -0.2);"
 
   cbox <- shinyWidgets::actionGroupButtons(
     c("reset"), list(icon("sync")), status="primary")
