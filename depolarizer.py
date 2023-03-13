@@ -15,7 +15,7 @@ class depolarizer:
 
         assert(self._img_i.shape[0] == self._img_i.shape[1])
 
-    def __map(self, file_o, map_x, map_y):
+    def __map(self, map_x, map_y, file_o = None):
         # receives self._img_i and remaps it into img_o with two given functions (map_x, map_y). 
         img_o = cv.remap(self._img_i, map_x, map_y, cv.INTER_LINEAR)
 
@@ -42,7 +42,7 @@ class depolarizer:
         map_x = res_i/(2*np.pi) * angle
         map_y = res_i - res_i/(2*np.pi) * r
         
-        return self.__map(file_o, map_x, map_y)
+        return self.__map(map_x, map_y, file_o)
 
     def to_polar(self, file_o=None, axis=0, res_o=1000):
 
@@ -60,7 +60,7 @@ class depolarizer:
         map_x = r * np.cos(angle) + res_i/2
         map_y = r * np.sin(angle) + res_i/2
         
-        return self.__map(file_o, map_x, map_y)
+        return self.__map(map_x, map_y, file_o)
 
 if __name__ == "__main__":
     import matplotlib.pyplot as plt

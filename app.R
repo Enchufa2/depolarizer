@@ -145,7 +145,7 @@ server <- function(input, output, session) {
     file_in <- isolate(get_file_in()$datapath)
     file_ext <- strsplit(basename(file_in), "\\.")[[1]][2]
     file_out <- file.path(dirname(file_in), paste0("out.", file_ext))
-    dp$depolarizer(file_in, file_out, data, axis, resolution)
+    dp$depolarizer(file_in, data)$to_polar(file_out, axis, resolution)
 
     list(src=file_out)
   })
