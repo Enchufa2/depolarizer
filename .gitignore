@@ -3,4 +3,5 @@
 .RData
 .Ruserdata
 .Renviron
+.DS_Store
 __pycache__
