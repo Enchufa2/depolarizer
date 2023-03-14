@@ -77,10 +77,16 @@ ui <- navbarPage(
           class="controls",
           shiny::tagAppendAttributes(class="d-inline-block", numericInput(
             "axis", "Cut axis (º):", -90, -180, 180, 1,
-            width="calc(0.4 * (100% - 115px))")),
+            width="calc(0.25 * (100% - 120px))")),
           shiny::tagAppendAttributes(class="d-inline-block", numericInput(
-            "resolution", "Output resolution (px):", NULL,
-            width="calc(0.6 * (100% - 115px))")),
+            "resolution", "Output res. (px):", NULL,
+            width="calc(0.4 * (100% - 120px))")),
+#          shiny::tagAppendAttributes(class="d-inline-block", numericInput(
+#            "mode", "mode:", NULL,
+#            width="calc(0.35 * (100% - 120px))")),
+          shiny::tagAppendAttributes(class="d-inline-block", selectInput(
+            "mode", "Mode:", choices = list("to cartesian" = 1, "to polar" = 0), selected = 0,
+            width="calc(0.35 * (100% - 120px))")),
           actionButton(
             "run", "Convert", icon("play"), class="btn-primary", width="105px")
         ),
@@ -139,14 +145,18 @@ server <- function(input, output, session) {
     data <- req(input$data)
     axis <- isolate(req(input$axis))
     resolution <- isolate(req(input$resolution))
+    mode <- isolate(req(input$mode))
     resok <- findInterval(resolution, c(100, 5001)) == 1
     validate(need(resok, "Error: resolution must be between 100 and 5000"))
 
     file_in <- isolate(get_file_in()$datapath)
     file_ext <- strsplit(basename(file_in), "\\.")[[1]][2]
     file_out <- file.path(dirname(file_in), paste0("out.", file_ext))
-    dp$depolarizer(file_in, data)$to_polar(file_out, axis, resolution)
-
+    if (mode == 0){
+      dp$depolarizer(file_in, data)$to_polar(file_out, axis, resolution)
+    } else {
+    dp$depolarizer(file_in, data)$to_cartesian(file_out, axis, resolution)
+    }
     list(src=file_out)
   })
 }
