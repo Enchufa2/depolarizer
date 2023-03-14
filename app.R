@@ -77,16 +77,14 @@ ui <- navbarPage(
           class="controls",
           shiny::tagAppendAttributes(class="d-inline-block", numericInput(
             "axis", "Cut axis (º):", -90, -180, 180, 1,
-            width="calc(0.25 * (100% - 120px))")),
+            width="calc(0.3 * (100% - 120px))")),
           shiny::tagAppendAttributes(class="d-inline-block", numericInput(
-            "resolution", "Output res. (px):", NULL,
+            "resolution", "Resolution (px):", NULL,
             width="calc(0.4 * (100% - 120px))")),
-#          shiny::tagAppendAttributes(class="d-inline-block", numericInput(
-#            "mode", "mode:", NULL,
-#            width="calc(0.35 * (100% - 120px))")),
           shiny::tagAppendAttributes(class="d-inline-block", selectInput(
-            "mode", "Mode:", choices = list("to cartesian" = 1, "to polar" = 0), selected = 0,
-            width="calc(0.35 * (100% - 120px))")),
+            "mode", "Mode:", choices = list("⬜ ⟶ ◯" = 1, "◯ ⟶ ⬜" = 0),
+            selected = 0, selectize = FALSE,
+            width="calc(0.3 * (100% - 120px))")),
           actionButton(
             "run", "Convert", icon("play"), class="btn-primary", width="105px")
         ),
@@ -155,7 +153,7 @@ server <- function(input, output, session) {
     if (mode == 0){
       dp$depolarizer(file_in, data)$to_polar(file_out, axis, resolution)
     } else {
-    dp$depolarizer(file_in, data)$to_cartesian(file_out, axis, resolution)
+      dp$depolarizer(file_in, data)$to_cartesian(file_out, axis, resolution)
     }
     list(src=file_out)
   })
