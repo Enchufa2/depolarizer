@@ -1,5 +1,5 @@
 load_dp <- function() {
-  if (file.exists("depolarizer.R") && Sys.info()[["user"]] != "shiny") {
+  if (FALSE && file.exists("depolarizer.R") && Sys.info()[["user"]] != "shiny") {
     source("depolarizer.R", local=(dp <- new.env()))
     return(dp)
   }
