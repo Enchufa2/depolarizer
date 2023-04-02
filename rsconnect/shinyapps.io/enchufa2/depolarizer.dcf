@@ -5,10 +5,10 @@ account: enchufa2
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 5306844
-bundleId: 6956029
+bundleId: 7039758
 url: https://enchufa2.shinyapps.io/depolarizer/
-when: 1678792841.14854
-lastSyncTime: 1678792841.14857
+when: 1680464085.92383
+lastSyncTime: 1680464085.92384
 asMultiple: FALSE
 asStatic: FALSE
 ignoredFiles: __pycache__/depolarizer.cpython-311.pyc|circles_processed.jpg|depolarizer.R|README.md
