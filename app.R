@@ -31,7 +31,7 @@ ui <- navbarPage(
           if (e.name == 'container_out') {
             var im_name = $('#filename').val().split('.')[0];
             var im_type = $('#image').attr('src').split(';')[0].split(':')[1];
-            var im_ext = $('#steps')[0].checked ? 'gif' : im_type.split('/')[1];
+            var im_ext = $('#steps')[0].checked ? 'webp' : im_type.split('/')[1];
             var im_in = cropper.getCroppedCanvas().toDataURL(im_type);
             $('#download-out').attr('href', e.value.src);
             $('#download-in').attr('href', im_in);
@@ -152,7 +152,7 @@ server <- function(input, output, session) {
     validate(need(resok, "Error: resolution must be between 100 and 5000"))
 
     file_in <- isolate(get_file_in()$datapath)
-    file_ext <- if (steps) "gif" else tools::file_ext(file_in)
+    file_ext <- if (steps) "webp" else tools::file_ext(file_in)
     file_out <- file.path(dirname(file_in), paste0("out.", file_ext))
     if (mode == 0){
       dp$depolarizer(file_in, data)$to_polar(file_out, axis, resolution, steps)

@@ -1,6 +1,7 @@
 import cv2 as cv
 import numpy as np
-import imageio
+import os, imageio, webptools
+webptools.grant_permission()
 
 def width(file_i):
     return cv.imread(file_i).shape[1]
@@ -49,7 +50,9 @@ class depolarizer:
             return img_o
         d = [0.5] + [0.1] * (len(img_o)-2) + [1]
         mirror = lambda x: x + x[-2:0:-1]
-        imageio.mimwrite(file_o, mirror(img_o), duration=mirror(d))
+        imageio.mimwrite(file_o + ".gif", mirror(img_o), duration=mirror(d))
+        webptools.gifwebp(file_o + ".gif", file_o, option="-lossy -mt")
+        os.remove(file_o + ".gif")
 
     def to_cartesian(self, file_o=None, axis=0, res_o=1000, steps=False):
         # generate the array of coordinates for the output image 
