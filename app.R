@@ -77,14 +77,17 @@ ui <- navbarPage(
           class="controls",
           shiny::tagAppendAttributes(class="d-inline-block", numericInput(
             "axis", "Cut axis (º):", -90, -180, 180, 1,
-            width="calc(0.3 * (100% - 120px))")),
+            width="calc(0.25 * (100% - 125px))")),
           shiny::tagAppendAttributes(class="d-inline-block", numericInput(
             "resolution", "Resolution (px):", NULL,
-            width="calc(0.4 * (100% - 120px))")),
+            width="calc(0.3 * (100% - 125px))")),
           shiny::tagAppendAttributes(class="d-inline-block", selectInput(
             "mode", "Mode:", choices = list("⬜ ⟶ ◯" = 1, "◯ ⟶ ⬜" = 0),
             selected = 0, selectize = FALSE,
-            width="calc(0.3 * (100% - 120px))")),
+            width="calc(0.25 * (100% - 125px))")),
+          shiny::tagAppendAttributes(class="d-inline-block", checkboxInput(
+            "steps", "GIF", FALSE,
+            width="calc(0.2 * (100% - 125px))")),
           actionButton(
             "run", "Convert", icon("play"), class="btn-primary", width="105px")
         ),
@@ -144,16 +147,17 @@ server <- function(input, output, session) {
     axis <- isolate(req(input$axis))
     resolution <- isolate(req(input$resolution))
     mode <- isolate(req(input$mode))
+    steps <- isolate(isTRUE(input$steps))
     resok <- findInterval(resolution, c(100, 5001)) == 1
     validate(need(resok, "Error: resolution must be between 100 and 5000"))
 
     file_in <- isolate(get_file_in()$datapath)
-    file_ext <- strsplit(basename(file_in), "\\.")[[1]][2]
+    file_ext <- if (steps) "gif" else tools::file_ext(file_in)
     file_out <- file.path(dirname(file_in), paste0("out.", file_ext))
     if (mode == 0){
-      dp$depolarizer(file_in, data)$to_polar(file_out, axis, resolution)
+      dp$depolarizer(file_in, data)$to_polar(file_out, axis, resolution, steps)
     } else {
-      dp$depolarizer(file_in, data)$to_cartesian(file_out, axis, resolution)
+      dp$depolarizer(file_in, data)$to_cartesian(file_out, axis, resolution, steps)
     }
     list(src=file_out)
   })

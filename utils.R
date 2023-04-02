@@ -7,6 +7,7 @@ load_dp <- function() {
   virtualenv <- "depolarizer"
   reticulate::virtualenv_create(virtualenv)
   reticulate::virtualenv_install(virtualenv, "opencv-python")
+  reticulate::virtualenv_install(virtualenv, "imageio")
   reticulate::use_virtualenv(virtualenv, TRUE)
   reticulate::import("depolarizer")
 }
