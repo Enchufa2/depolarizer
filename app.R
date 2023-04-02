@@ -31,7 +31,7 @@ ui <- navbarPage(
           if (e.name == 'container_out') {
             var im_name = $('#filename').val().split('.')[0];
             var im_type = $('#image').attr('src').split(';')[0].split(':')[1];
-            var im_ext = im_type.split('/')[1];
+            var im_ext = $('#steps')[0].checked ? 'gif' : im_type.split('/')[1];
             var im_in = cropper.getCroppedCanvas().toDataURL(im_type);
             $('#download-out').attr('href', e.value.src);
             $('#download-in').attr('href', im_in);
