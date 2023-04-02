@@ -33,7 +33,7 @@ class depolarizer:
         pix_o[1] -= res_o/2
         res_i = self._img_i.shape[0]
         diag_o = np.sqrt(2) * res_o/2
-        r = np.log ( np.sqrt(pix_o[1]**2 + pix_o[0]**2) / diag_o ) + 2*np.pi 
+        r = np.log( np.sqrt(pix_o[1]**2 + pix_o[0]**2) / diag_o ) + 2*np.pi
         angle = np.arctan2(pix_o[1], pix_o[0]) + axis*np.pi/180
         angle[angle < 0] += 2*np.pi
         
@@ -46,13 +46,13 @@ class depolarizer:
     def to_polar(self, file_o=None, axis=0, res_o=1000):
         # generate the array of coordinates for the output image 
         seq = np.arange(res_o, dtype=np.float32)
-        pix_o = np.meshgrid(seq, np.flip(seq))
+        pix_o = np.meshgrid(seq, seq)
         
         # auxiliar variables
         res_i = self._img_i.shape[0]
         diag_i = np.sqrt(2) * res_i/2
-        r = diag_i * np.exp(2*np.pi * (pix_o[1] / res_o - 1))
-        angle = 2*np.pi * ( pix_o[0] / res_o  - axis / 360)
+        r = diag_i * np.exp(-2*np.pi * pix_o[1] / res_o)
+        angle = 2*np.pi * (pix_o[0] / res_o  - axis / 360)
         
         # mapping
         map_x = r * np.cos(angle) + res_i/2
@@ -62,6 +62,6 @@ class depolarizer:
 
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
-    dst = depolarizer("circles_processed.jpg").to_cartesian()
+    dst = depolarizer("circles.jpg").to_polar(axis=-90)
     plt.imshow(cv.cvtColor(dst, cv.COLOR_BGR2RGB))
     plt.show()
