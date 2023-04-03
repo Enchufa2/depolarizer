@@ -60,16 +60,16 @@ class depolarizer:
         pix_o = np.meshgrid(seq, seq)
         
         # auxiliar variables
-        pix_o = [_ - res_o/2 for _ in pix_o]
         res_i = self._img_i.shape[0]
-        diag_o = np.sqrt(2) * res_o/2
-        r = np.log( np.sqrt(pix_o[1]**2 + pix_o[0]**2) / diag_o ) + 2*np.pi
-        angle = np.arctan2(pix_o[1], pix_o[0]) + axis*np.pi/180
+        x_o, y_o = [_/res_o - 0.5 for _ in pix_o]
+
+        r = np.sqrt(y_o**2 + x_o**2) * np.sqrt(2) 
+        angle = np.arctan2(y_o, x_o) + axis * np.pi/180
         angle[angle < 0] += 2*np.pi
         
         # mapping
-        map_x = res_i/(2*np.pi) * angle
-        map_y = res_i - res_i/(2*np.pi) * r
+        map_x = res_i * angle / (2*np.pi)
+        map_y = res_i * (-np.log(r)) / (2*np.pi)
         
         if steps:
             map_x, map_y = self.__steps((map_x, map_y), pix_o, res_i, res_o)
@@ -83,13 +83,14 @@ class depolarizer:
         
         # auxiliar variables
         res_i = self._img_i.shape[0]
-        diag_i = np.sqrt(2) * res_i/2
-        r = diag_i * np.exp(-2*np.pi * pix_o[1] / res_o)
-        angle = 2*np.pi * (pix_o[0] / res_o  - axis / 360)
+        x_o, y_o = [_/res_o for _ in pix_o]
+
+        r = np.exp(-2*np.pi * y_o) / np.sqrt(2)
+        angle = 2*np.pi * (x_o - axis / 360)
         
         # mapping
-        map_x = r * np.cos(angle) + res_i/2
-        map_y = r * np.sin(angle) + res_i/2
+        map_x = res_i * (r * np.cos(angle) + 0.5)
+        map_y = res_i * (r * np.sin(angle) + 0.5)
         
         if steps:
             map_x, map_y = self.__steps((map_x, map_y), pix_o, res_i, res_o)
@@ -98,6 +99,6 @@ class depolarizer:
 
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
-    dst = depolarizer("circles.jpg").to_polar(axis=-90)
+    dst = depolarizer("circles_processed.jpg").to_cartesian(axis=-90)
     plt.imshow(cv.cvtColor(dst, cv.COLOR_BGR2RGB))
     plt.show()
