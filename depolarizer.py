@@ -22,8 +22,10 @@ class depolarizer:
         map_y = []
         pix_i = [_ / res_i for _ in pix_i]
         pix_o = [_ / res_o for _ in pix_o]
-
-        for p in np.arange(0, 1.1, 0.1):
+        
+        smooth = lambda a, b : a**b/(a**b + (1-a)**b)
+        
+        for p in smooth(np.linspace(0, 1, 11), 3):
             map_x.append((pix_o[0] + (pix_i[0] - pix_o[0]) * p) * res_i)
             map_y.append((pix_o[1] + (pix_i[1] - pix_o[1]) * p) * res_i)
 
@@ -99,6 +101,6 @@ class depolarizer:
 
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
-    dst = depolarizer("circles_processed.jpg").to_cartesian(axis=-90)
+    dst = depolarizer("circles.jpg").to_polar(axis=-90)
     plt.imshow(cv.cvtColor(dst, cv.COLOR_BGR2RGB))
     plt.show()
