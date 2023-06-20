@@ -54,7 +54,7 @@ class depolarizer:
         img_o = [cv.cvtColor(_, cv.COLOR_BGR2RGB) for _ in img_o]
         d = [0.5] + [0.1] * (len(img_o)-2) + [1]
         mirror = lambda x: x + x[-2:0:-1]
-        imageio.mimwrite(file_o + ".gif", mirror(img_o), duration=mirror(d))
+        imageio.mimwrite(file_o + ".gif", mirror(img_o), duration=mirror(d), loop=0)
 
         webptools.gifwebp(file_o + ".gif", file_o, option="-lossy -mt")
         os.remove(file_o + ".gif")
